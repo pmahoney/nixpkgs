@@ -83,7 +83,7 @@ stdenv.mkDerivation rec {
       done
 
     echo patch faust2lv2 so it can find lv2 includes.
-    sed -i 's@CPPFLAGS=@CPPFLAGS=-I ${lv2}/include/ @g' $out/bin/faust2lv2
+    sed -i 's@CPPFLAGS="@CPPFLAGS="-I ${lv2}/include/ @g' $out/bin/faust2lv2
 
     wrapProgram $out/bin/faust2alsaconsole \
     --prefix PKG_CONFIG_PATH : ${alsaLib}/lib/pkgconfig \
