@@ -45,6 +45,8 @@ stdenv.mkDerivation rec {
     install tools/faust2appls/faust2alsa $out/bin
     install tools/faust2appls/faust2jack $out/bin
     install tools/faust2appls/faust2lv2 $out/bin
+    install tools/faust2appls/faust2svg $out/bin
+    install tools/faust2appls/faust2firefox $out/bin
 
     patchShebangs $out/bin
 
@@ -71,8 +73,6 @@ stdenv.mkDerivation rec {
 
 
     echo patch header and cpp files
-    find $out/include/ -name "*.h" -type f | xargs sed "s@#include \"faust/@#include \"$out/include/@g" -i
-    find $out/lib/faust/ -name "*.cpp" -type f | xargs sed "s@#include \"faust/@#include \"$out/include/@g" -i
     sed -i "s@../../architecture/faust/gui/@$out/include/faust/gui/@g"  $out/include/faust/misc.h
 
     echo link .lib files from faust to compiler so that FAUSTLIB works
@@ -103,8 +103,15 @@ stdenv.mkDerivation rec {
     --set FAUSTLIB $out/lib/faust \
     --set FAUSTINC $out/include/
 
-
     wrapProgram  $out/bin/faust2lv2 \
+    --set FAUSTLIB $out/lib/faust \
+    --set FAUSTINC $out/include/
+
+    wrapProgram  $out/bin/faust2svg \
+    --set FAUSTLIB $out/lib/faust \
+    --set FAUSTINC $out/include/
+
+    wrapProgram  $out/bin/faust2firefox \
     --set FAUSTLIB $out/lib/faust \
     --set FAUSTINC $out/include/
     ''
@@ -115,12 +122,15 @@ stdenv.mkDerivation rec {
   postInstall = ''
     sed -e "s@\$FAUST_INSTALL /usr/local /usr /opt /opt/local@${faust-compiler}@g" -i $out/bin/faustpath
     find $out/bin/ -name "*faust2*" -type f | xargs sed "s@pkg-config@${pkgconfig}/bin/pkg-config@g" -i
-    find $out/bin/ -name "*faust2*" -type f | xargs sed "s@CXX=g++@CXX=${gcc}/bin/g++@g" -i
+    find $out/bin/ -name "*faust2*" -type f | xargs sed "s@CXX=g++@CXX=\"${gcc}/bin/g++ -I $out/include/\"@g" -i
     find $out/bin/ -name "*faust2*" -type f | xargs sed "s@faust -i -a @${faust-compiler}/bin/faust -i -a $out/lib/faust/@g" -i
     find $out/lib/faust/ -name "lv2*.cpp" -type f | xargs sed "s@lv2/lv2plug.in@${lv2}/include/lv2/lv2plug.in@g" -i
   '';
 
+#     find $out/bin/ -name "*faust2*" -type f | xargs sed "s@'\$CXX \$'@\$CXX -I $out/include/ \$@g" -i
 #    --prefix PKG_CONFIG_PATH :  ${lv2}/lib/pkgconfig \
+#    xargs sed 's@CXX=g++@CXX=${gcc}/bin/g++ \"-I ${out}/include/\"@g' -i
+
 
 
   meta = with stdenv.lib; {
