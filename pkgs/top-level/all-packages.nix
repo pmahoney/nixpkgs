@@ -380,6 +380,8 @@ let
     inherit lib;
   };
 
+  makeFaust2Appl = callPackage ../build-support/make-faust2appl { };
+
   makeInitrd = {contents, compressor ? "gzip -9"}:
     import ../build-support/kernel/make-initrd.nix {
       inherit stdenv perl perlArchiveCpio cpio contents ubootChooser compressor;
@@ -12506,6 +12508,10 @@ let
   electricsheep = callPackage ../misc/screensavers/electricsheep { };
 
   fakenes = callPackage ../misc/emulators/fakenes { };
+
+  faust = callPackage ../applications/audio/faust { };
+
+  faust2alsa = callPackage ../applications/audio/faust/faust2alsa.nix { };
 
   fceux = callPackage ../misc/emulators/fceux { };
 
